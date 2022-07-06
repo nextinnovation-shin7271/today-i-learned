@@ -1,23 +1,121 @@
 # vue
 
+Vue는 사용자 인터페이스(UI)를 구축하기 위한 JavaScript 프레임워크이다.
+Vue는 컴포넌트 기반 프로그래밍 모델을 갖고 있으며, [Vue 공식문서](https://v3-docs.vuejs-korea.org/)에서 **접근하기 쉬운**, **성능이 뛰어난**, **다재다능한** 자바스크립트 프레임워크라고 소개하고 있다. 왜 그렇게 소개하는지는 이 글에서 다루는 내용인 Vue의 기본 개념과 문법을 알아보도록 하자.
+
+## Table of Contents
+
+- [vue](#vue)
+  - [Table of Contents](#table-of-contents)
+  - [Single File Component](#single-file-component)
+    - [SFC를 사용하는 이유](#sfc를-사용하는-이유)
+  - [API 스타일](#api-스타일)
+    - [옵션 API (Options API)](#옵션-api-options-api)
+    - [컴포지션 API (Composition API)](#컴포지션-api-composition-api)
+      - [`setup()`](#setup)
+      - [`<script setup>`](#script-setup)
+  - [vue 기본 개념과 문법 with Composition API](#vue-기본-개념과-문법-with-composition-api)
+    - [템플릿 문법 (Template Syntax)](#템플릿-문법-template-syntax)
+      - [텍스트 보간법](#텍스트-보간법)
+      - [HTML 출력](#html-출력)
+      - [속성 바인딩](#속성-바인딩)
+    - [반응형 기초 (Reactivity)](#반응형-기초-reactivity)
+      - [깊은 반응형](#깊은-반응형)
+      - [reactive()를 사용한 반응형](#reactive를-사용한-반응형)
+      - [ref()를 사용한 반응형](#ref를-사용한-반응형)
+      - [reactive()와 ref()의 차이점](#reactive와-ref의-차이점)
+    - [속성 바인딩 (Data Binding) `v-bind`](#속성-바인딩-data-binding-v-bind)
+      - [`v-bind`](#v-bind)
+    - [이벤트 리스너 (Event Listener, Event Handling) `v-on`](#이벤트-리스너-event-listener-event-handling-v-on)
+      - [`v-on`](#v-on)
+    - [폼 바인딩 (Form Binding) `v-model`](#폼-바인딩-form-binding-v-model)
+      - [`v-bind`와 `v-on`](#v-bind와-v-on)
+      - [`v-model`](#v-model)
+    - [조건부 렌더링 (Conditional Rendering) `v-if`, `v-show`](#조건부-렌더링-conditional-rendering-v-if-v-show)
+      - [`v-if`와 `v-else`](#v-if와-v-else)
+      - [`v-else-if`](#v-else-if)
+      - [`v-show`](#v-show)
+      - [`v-if` with `v-for`](#v-if-with-v-for)
+    - [리스트 렌더링 (List Rendering) `v-for`](#리스트-렌더링-list-rendering-v-for)
+      - [`v-for`](#v-for)
+    - [이외에 다양한 디렉티브(directive)](#이외에-다양한-디렉티브directive)
+    - [계산된 속성 (Computed Property)](#계산된-속성-computed-property)
+    - [생명주기와 템플릿 참조 (Lifecycle, Template ref)](#생명주기와-템플릿-참조-lifecycle-template-ref)
+    - [감시자 (Watch)](#감시자-watch)
+    - [컴포넌트 (Component)](#컴포넌트-component)
+    - [자식 컴포넌트로 데이터 전달 (Props)](#자식-컴포넌트로-데이터-전달-props)
+    - [부모 컴포넌트로 이벤트 전달 (Emits)](#부모-컴포넌트로-이벤트-전달-emits)
+  - [참고 자료](#참고-자료)
+
+## Single File Component
+
+빌드 도구(vue CLI, vite)를 사용하는 대부분의 Vue 프로젝트는 HTML과 유사한 싱글 파일 컴포넌트(Single-File Component: SFC, `.vue`파일)라고 하는 파일 형식을 사용하여 Vue 컴포넌트는 작성한다.
+
+`<template>`, `<script>`, `<style>`블록은 하나의 파일에서 컴포넌트의 뷰, 로직 및 스타일을 캡슐화하고 배치한다.
+
+```vue
+<!-- SFC 예제 -->
+<script setup>
+import { ref } from "vue";
+const greeting = ref("안녕 Vue!");
+</script>
+
+<template>
+  <p class="greeting">{{ greeting }}</p>
+</template>
+
+<style>
+.greeting {
+  color: red;
+  font-weight: bold;
+}
+</style>
+```
+
+### SFC를 사용하는 이유
+
+SFC 사용을 위해 빌드 방식을 따라야 하지만(대부분의 프로젝트가 빌드도구를 이용한다.) 다음과 같은 이점이 있다.
+
+- 친숙한 HTML, CSS, JS문법을 사용해 모듈화된 컴포넌트 작성
+- 뷰, 로직, 스타일이 본질적으로 사용 목적에따라 한 파일내에 구성
+- 사전 컴파일된 템플릿
+- 컴포넌트 범위 CSS(scoped CSS)
+- 컴포지션 API로 작업할 때 더욱 인체공학적인 문법
+- 개발 시 변경 사항을 뷰에 바로 적용시켜주는 HMR(Hot-Module Replacement)지원
+
 ## API 스타일
 
 ### 옵션 API (Options API)
 
+**옵션 API**는 Vue component를 작성하는 오래된 방법이다.
+아래는 옵션 API에서 사용할 수 있는 함수와 특징들이다.
+
+- `data()`함수를 이용해 `reactive state`를 만든다.
+- `computed`속성을 이용해 `reactive state`의 변경을 감지해 읽기 전용인 계산된 값을 만든다.
+- `methods`, `props`, `watch` 등의 속성들을 이용해. `exported object`에 포함할 수 있다.
+- `beforeCreate`, `created()`, `beforeMount()`, `mounted()`, `updated()`등 `lifecycle hook`을 이용해서 각 `lifecycle`단계에 로직을 작성할 수 있다.
+
 옵션 API를 사용하는 경우, 옵션의 `data`, `methods` 및 `mounted`같은 객체를 사용해 컴포넌트 로직을 정의한다.
-옵션으로 정의된 속성을 컴포넌트 인스턴스를 가리키는 함수 내부의 `this`에 노출된다. 즉, 옵션으로 정의된 속성에 접근할 때 `this`로 접근가능하다.
+옵션으로 정의된 속성을 컴포넌트 인스턴스를 가리키는 함수 내부의 `this`에 노출된다. 즉, **옵션으로 정의된 속성에 접근할 때 `this`로 접근**가능하다.
 
 아래는 옵션 API 예시 SFC 코드이다.
 
 ```vue
 <script>
 export default {
-  // data()에서 반환된 속성들은 반응적인 상태가 되어 `this`에 노출됩니다.
+  // data()에서 반환된 속성들은 반응적인 상태가 되어 `this`에 노출된다.
   data() {
     return {
       count: 0,
     };
   },
+
+  // computed는 속성 값이 변경을 감지하면 return값에 적용되는 함수.
+  computed: {
+    countString() {
+      return `Total count: ${this.count}`
+    }
+  }
 
   // methods는 속성 값을 변경하고 업데이트 할 수 있는 함수.
   // 템플릿 내에서 이벤트 리스너로 바인딩 될 수 있음.
@@ -27,8 +125,8 @@ export default {
     },
   },
 
-  // 생명주기 훅(Lifecycle hooks)은 컴포넌트 생명주기의 여러 단계에서 호출됩니다.
-  // 이 함수는 컴포넌트가 마운트 된 후 호출됩니다.
+  // 생명주기 훅(Lifecycle hooks)은 컴포넌트 생명주기의 여러 단계에서 호출된다.
+  // 이 함수는 컴포넌트가 마운트 된 후 호출된다.
   mounted() {
     console.log(`숫자 세기의 초기값은 ${this.count} 입니다.`);
   },
@@ -37,23 +135,32 @@ export default {
 
 <template>
   <button @click="increment">숫자 세기: {{ count }}</button>
+  <p>{{ countString }}</p>
 </template>
 ```
 
 ### 컴포지션 API (Composition API)
 
-컴포지션 API를 사용하는 경우, `import`해서 가져온 API 함수들을 사용하여 컴포넌트의 로직을 정의한다.
-SFC에서 컴포지션 API는 일반적으로 `<script setup>`과 함께 사용된다.
-`<script setup>`에 `import`되어 가져온 객체들과 선언된 최상위 변수 및 함수는 템플릿에서 직접 사용 가능하다.
+컴포지션 API는 Vue component를 작성하는 새로운 방법이다.
+아래는 컴포지션 API에서 사용할 수 있는 함수와 특징들이다.
+
+- `ref()`, `reactive()`를 이용해 `reactive state`를 만든다.
+- `computed()`, `watch()`, `watchEffect()`를 이용해 `reactive state`의 변경을 감지한다.
+- `onMounted()`, `onBeforeMount()`, `onUpdate()`등 `lifecycle hook`을 이용해서 각 `lifecycle`단계에 로직을 작성할 수 있다.
+- 컴포지션 API는 `setup()`함수와 `<script setup>`(Vue에서 추천하는 방식)을 이용해 컴포넌트를 작성할 수 있다.
+  - 옵션 API와 다른 점으로 컴포지션 API는 `create hook` 이 따로 존재하는것이 아니라 `setup` 이전 이후로 `onBeforeCreate`, `onCreated`가 실행된다.
 
 아래는 컴포지션 API 예시 SFC 코드이다.
 
 ```vue
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 
 // 반응적인 상태의 속성
 const count = ref(0);
+const countString = computed(() => {
+  return `Total count: ${count}`;
+});
 
 // 속성 값을 변경하고 업데이트 할 수 있는 함수.
 function increment() {
@@ -71,15 +178,10 @@ onMounted(() => {
 </template>
 ```
 
-setup은 컴포넌트가 생성되기 전에 `props`가 반환(resolved)되면 실행되는 컴포넌트 옵션으로 composition API의 진입점 역할을 한다.
-
-- 전달인자
-  - props: {Data}
-  - context: {SetupContext}
-
 #### `setup()`
 
 > 싱글 파일 컴포넌트(SFC)를 이용하는 경우 `setup()`훅을 이용하기 보다 간결하고 인체공학적 문법을 사용하기 위해 `<script setup>`을 사용하는것을 권장한다.
+> 보통 프로젝트에는 빌드도구를 이용해 SFC로 Vue코드가 작성되기 때문에 `<script setup>`을 사용하는게 자연스러울 것이다.
 
 `setup()` 훅은 다음과 같은 경우, 컴포넌트에서 컴포지션 API 사용을 위한 진입점 역할을 한다.
 
@@ -88,14 +190,96 @@ setup은 컴포넌트가 생성되기 전에 `props`가 반환(resolved)되면 �
 
 #### `<script setup>`
 
-`<script></script>`같은 일반적인 script 태그의 경우는 컴포넌트가 처음 import될 때 한번 실행된다.
-반면 `<script setup></script>`는 컴포넌트 인스턴스가 생성될 때마다 실행된다.
+`<script>`같은 일반적인 script 태그의 경우는 컴포넌트가 처음 import될 때 한번 실행되는 반면, `<script setup>`는 컴포넌트 인스턴스가 생성될 때마다 실행된다.
 
-`<script setup></script>`태그는 모듈을 포함할 수 없다.(`<script setup>` cannot contain ES module)
+`<script setup>`문법은 `setup()`함수 문법보다 더 많은 이점을 제공한다.
+
+- 더 적은 상용구(boilerplate) 사용
+- 더 나은 런타임 퍼포먼스
+- 효과적인 타입스크립트 사용
+- 더 나은 IDE 타입 추론 기능
+
+주의 사항으로 `<script setup>`태그는 모듈을 포함할 수 없다.(`<script setup>` cannot contain ES module)
+
+위와 같은 이유로 Vue core team에서는 `<script setup>`문법을 추천한다.
+
+참고
+
+- [Composition API VS Options API in Vue 3 For Beginners](https://www.webmound.com/composition-api-vs-options-api-in-vue-3/)
 
 ## vue 기본 개념과 문법 with Composition API
 
+### 템플릿 문법 (Template Syntax)
+
+Vue는 컴포넌트 인스턴스의 데이터를 서술적으로 렌더링된 **DOM에 바인딩할 수 있는** HTML 기반 **템플릿 문법**을 사용한다.
+
+#### 텍스트 보간법
+
+데이터 바인딩을 할 때 가장 기본적으로 사용하는 "Mustache"(이중 중괄호) 문법을 사용한 텍스트 보간법이다.
+
+```vue
+<template>
+  <span>메세지: {{ msg }}</span>
+</template>
+<script setup>
+import { ref } from "vue";
+const msg = ref("뷰 reactive 메세지입니다.");
+</script>
+```
+
+이중 중괄호 태그 내 `msg`는 해당 컴포넌트 인스턴스인 `msg` 속성의 값으로 대체된다. 또한 `msg` 속성이 변경될 때마다 업데이트된다.(reactive 특성)
+
+#### HTML 출력
+
+이중 중괄호는 데이터를 HTML이 아닌 일반 텍스트로 해석해서 태그까지 같이 렌더링된다. HTML을 파싱해서 렌더링하고싶다면, `v-html`디렉티브를 사용해야 한다.
+
+```vue
+<template>
+  <p>텍스트 보간법 사용: {{ rawHtml }}</p>
+  <p>v-html 디렉티브 사용: <span v-html="rawHtml"></span></p>
+</template>
+<script setup>
+import 'ref' from 'vue'
+const rawHtml = ref(`<span style="color: red">이것은 빨간색이어야 합니다.</span>`)
+</script>
+```
+
+#### 속성 바인딩
+
+이중 중괄호는 HTML 속성값에 사용할 수 없다. 대신 이중 중괄호 없이 동적인 속성값을 써주면 된다.
+
+```vue
+<template>
+  <h1 v-bind:id="dynamicId">Title</h1>
+</template>
+<script setup>
+import { ref } from "vue";
+const dynamicId = ref("title");
+// 값이 변경돼 재 렌더링 돼야 하는 경우가 아니라면 아래와 같이 사용해도 무관하다. 반응성(reactive)는 이후에 다룰 내용이다.
+// const dynamicId = "title";
+</script>
+```
+
 ### 반응형 기초 (Reactivity)
+
+`reactive()`, `ref()`를 사용해서 만든 반응형 상태(reative state)를 변경하면 DOM이 자동으로 업데이트된다. 그러나 DOM 업데이트는 동기적으로 적용되지 않는점에 유의해야 한다. 대신 Vue는 업데이트 주기의 "다음 틱(tick)"까지 버퍼링하여 상태 변경을 여러번 수행했어도 각 컴포넌트가 한 번만 업데이트된다.(효율적 렌더링)
+
+상태 변경 후, DOM 업데이트가 완료될 떄 까지 기다리려면 `nextTick()`전역 API를 사용할 수 있다.
+
+```js
+import { nextTick } from "vue";
+
+function increment() {
+  state.count++;
+  nextTick(() => {
+    // 업데이트된 DOM에 접근 가능
+  });
+}
+```
+
+#### 깊은 반응형
+
+Vue는 기본적으로 반응형 상태를 내부 깊숙이 추적해, 중첩된 객체나 배열을 변경할 떄에도 변경 사항이 감지된다.
 
 #### reactive()를 사용한 반응형
 
@@ -154,7 +338,7 @@ const doubled = computed(() => count.value * 2);
 
 - [https://joshua1988.github.io/vue-camp/vue3.html#reactive%E1%84%8B%E1%85%AA-ref%E1%84%8B%E1%85%B4-%E1%84%8E%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%8C%E1%85%A5%E1%86%B7](https://joshua1988.github.io/vue-camp/vue3.html#reactive%E1%84%8B%E1%85%AA-ref%E1%84%8B%E1%85%B4-%E1%84%8E%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%8C%E1%85%A5%E1%86%B7)
 
-### 속성 바인딩 (Data Binding)
+### 속성 바인딩 (Data Binding) `v-bind`
 
 #### `v-bind`
 
@@ -182,12 +366,15 @@ const titleId = ref("title");
 </style>
 ```
 
-### 이벤트 리스너 (Event Listener, Event Handling)
+### 이벤트 리스너 (Event Listener, Event Handling) `v-on`
 
 #### `v-on`
 
 `v-on`디렉티브를 사용해서 DOM 이벤트틑 수신할 수 있다.
 `v-bind`디렉티브와 동일하게 `v-on:이벤트명="함수명"`로 이벤트를 바인딩할 수 있으며, 축약형은 `@:이벤트명="함수명"`으로 똑같이 바인딩 할 수 있다.
+
+또한 `v-on`과 이후에 나올, `v-model` 디렉티브 전용으로 수식어가 있다.
+수식어는 `.`으로 시작하는 특수한 접미사로, 디렉티브가 특별한 방식으로 바인딩돼야 할때 사용한다. 예를 들어 `form`태그에 `sumbmit`이벤트가 발생할 때 페이지 리로드를 막아주는 `preventDefault()`와 비슷한 동작을 하는 수식어인 `prevent`를 사용하여 `<form @sumbmit.prevent="onSubmit">...</form>`처럼 작성하면 페이지가 리로드 되는것을 막을 수 있다.
 
 > 이후 자식 컴포넌트의 emit으로 전달한 이벤트를 부모 컴포넌트에서 `v-on`디렉티브를 이용해 이벤트를 전달받을 수 있다.
 
@@ -199,14 +386,19 @@ const count = ref(0);
 const increment = () => {
   count.value++;
 };
+const onSumbmit = () => {};
 </script>
 
 <template>
   <button v-on:click="increment">숫자 세기: {{ count }}</button>
+  <form @submit.prevent="onSubmit">...</form>
 </template>
 ```
 
-### 폼 바인딩 (Form Binding)
+아래는 전체적인 디렉티브 문법을 시각화 한것이다.
+![vue directive](./img/vue_directive.png)
+
+### 폼 바인딩 (Form Binding) `v-model`
 
 #### `v-bind`와 `v-on`
 
@@ -248,7 +440,7 @@ const text = ref("");
 
 v-model은 텍스트 입력 외에도 체크박스, 라디오 버튼, 셀렉트 드롭다운과 같은 다른 입력 타입에서도 작동한다. 따라서 `v-bind`, `v-on`으로 양방향 바인딩하는것보다 `v-model`을 이용하도록 하자.
 
-### 조건부 렌더링 (Conditional Rendering)
+### 조건부 렌더링 (Conditional Rendering) `v-if`, `v-show`
 
 #### `v-if`와 `v-else`
 
@@ -307,7 +499,7 @@ function toggle() {
 
 `v-if`와 `v-for`를 함께 사용되는것은 권장되지 않는다. `v-if` vs `v-for`를 함께 사용하면 `v-if`가 먼저 평가된다.
 
-### 리스트 렌더링 (List Rendering)
+### 리스트 렌더링 (List Rendering) `v-for`
 
 #### `v-for`
 
@@ -336,6 +528,14 @@ const todos = ref([
   </ul>
 </template>
 ```
+
+### 이외에 다양한 디렉티브(directive)
+
+- `v-text`: innerText, HTML태그를 포함한 문자를 그대로 앨리먼트의 내용으로 렌더링
+- `v-html`: innerHtml, HTML태그를 파싱해서 적용된 HTML문서를 앨리먼트의 내용으로 렌더링
+- `v-pre`: Vue의 텍스트 보간법인 콧수염(Mustach) 표현식에 값이 바인딩되는것이 아니라, 문자 그대로 `{{값}}`이 렌더링
+- `v-once`: 처음 한 번만 렌더링
+- `v-cloak`: `v-for`디렉티브를 이용해 많은 데이터를 출력할 때 콧수염 표현식이 화면에 일시적으로 나타나는 경우가 있는데, 이것은 아직 컴파일 되지 않은 템플릿이다. 아직 컴파일 되지않은 템플릿은 렌더링되지 않도록 하는게 `v-cloak` 디렉티브
 
 ### 계산된 속성 (Computed Property)
 
@@ -372,7 +572,7 @@ const reversedMessage = computed(() => {
 
 아래는 vue의 instance가 생성될 때 진행되는 생명주기이다.
 기본적인 흐름으로 `Create => Mount => Update => Unmount` 순서로 진행되며 각각 이전(ex] beforeOnMount)과 이후(ex] onMounted)가 존재한다.
-![lifecycle](https://v3-docs.vuejs-korea.org/assets/lifecycle.c92cb034.png)
+![lifecycle](./img/vue_lifecycle.png)
 
 ```vue
 <script setup>
@@ -397,7 +597,7 @@ onMounted(() => {
 ### 감시자 (Watch)
 
 vue에서 `watch(데이터, 콜백함수)`함수는 해당 데이터가 변경됐을 때 전달된 콜백함수를 실행하도록 한다.
-react의 `useEffet(콜백함수, 데이터)`훅과 비슷한 동작을 한다.
+혹시 react를 다루어 본 적이 있다면, react의 `useEffet(콜백함수, 데이터)`훅과 비슷한 동작을 한다고 이해하면 도움이 된다.
 
 ```vue
 <script setup>
@@ -425,6 +625,8 @@ watch(todoId, fetchData);
   <pre v-else>{{ todoData }}</pre>
 </template>
 ```
+
+하나의 데이터를 기반으로 다른데이터를 변경할 필요가 있을 때 흔히 사용할 수 있는 계산된 속성(computed)과 비슷하지만, 감시자(watch)는 주로 긴 처리시간이 필요한 비동기 처리에 적합하다.
 
 참고
 
@@ -460,7 +662,7 @@ import ChildComp from "./ChildComp.vue";
 
 ### 자식 컴포넌트로 데이터 전달 (Props)
 
-자식 컴포넌트는 props를 통해 부모로부터 데이터를 받는다. 그리고 props를 받기 위해서는 `defineProps()`를 이용해 props를 선언해야 한다. props를 선언할 때 타입스크립트의 인터페이스처럼 받을 prop의 이름과 타입을 정해줘야 한다.
+자식 컴포넌트는 `props`속성으로 부모로부터 데이터를 받는다. 그리고 `props`를 받기 위해서는 `defineProps()`를 이용해 props를 선언해야 한다. props를 선언할 때 타입스크립트의 인터페이스처럼 받을 prop의 이름과 타입을 정해줘야 한다.
 
 참고로 `defineProps()`는 컴파일 타임 매크로이므로 import할 필요가 없다.
 
