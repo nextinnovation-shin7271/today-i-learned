@@ -354,7 +354,7 @@ import { ref } from "vue";
 const titleId = ref("title");
 </script>
 <template>
-  <div v-bind:id="dynamicID" class="a">글자가 빨간 색이 됩니다.</div>
+  <div v-bind:id="dynamicId" class="a">글자가 빨간 색이 됩니다.</div>
 </template>
 <style>
 #title {
