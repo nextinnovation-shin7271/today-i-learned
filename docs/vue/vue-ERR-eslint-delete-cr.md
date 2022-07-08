@@ -11,7 +11,7 @@ SFC 방식으로 vue파일을 작성했을 때 `ERR eslint delete 'cr'`이라는
 
    > 파일마다 설정을 해줘야 하므로 제대로 된 해결방법은 아니다.
 
-2. 프로젝트 루트에서 `.eslintre.js(json)`파일을 열고 `rules`에 아래 코드 추가
+2. 프로젝트 루트에서 `.eslintrc.js(json)`파일을 열고 `rules`에 아래 코드 추가
 
 넣어야 하는 코드
 
